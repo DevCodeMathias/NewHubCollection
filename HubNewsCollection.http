@@ -1,0 +1,6 @@
+@HubNewsCollection_HostAddress = http://localhost:5022
+
+GET {{HubNewsCollection_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

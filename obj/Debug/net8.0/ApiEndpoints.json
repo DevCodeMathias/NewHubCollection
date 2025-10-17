@@ -1,0 +1,12 @@
+[
+  {
+    "ContainingType": "HubNewsCollection.Controllers.HubNewsController",
+    "Method": "GetNotices",
+    "RelativePath": "api/HubNews/notices",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
