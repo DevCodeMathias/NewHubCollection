@@ -6,6 +6,18 @@
   },
   "paths": {
     "/api/HubNews/notices": {
+      "post": {
+        "tags": [
+          "HubNews"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/HubNews/Feed": {
       "get": {
         "tags": [
           "HubNews"

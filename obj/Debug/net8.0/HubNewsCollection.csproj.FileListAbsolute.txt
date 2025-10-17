@@ -44,3 +44,4 @@ C:\repo\FIAP\HubNewsCollection\HubNewsCollection\bin\Debug\net8.0\Microsoft.Exte
 C:\repo\FIAP\HubNewsCollection\HubNewsCollection\bin\Debug\net8.0\Npgsql.dll
 C:\repo\FIAP\HubNewsCollection\HubNewsCollection\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\repo\FIAP\HubNewsCollection\HubNewsCollection\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
+C:\repo\FIAP\HubNewsCollection\HubNewsCollection\obj\Debug\net8.0\HubNewsCollection.sourcelink.json

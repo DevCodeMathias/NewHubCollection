@@ -1,9 +1,19 @@
 [
   {
     "ContainingType": "HubNewsCollection.Controllers.HubNewsController",
-    "Method": "GetNotices",
-    "RelativePath": "api/HubNews/notices",
+    "Method": "GetFeedNotices",
+    "RelativePath": "api/HubNews/Feed",
     "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HubNewsCollection.Controllers.HubNewsController",
+    "Method": "PostNotices",
+    "RelativePath": "api/HubNews/notices",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [],

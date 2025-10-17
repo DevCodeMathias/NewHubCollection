@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HubNewsCollection")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8dbc9582262b8318dfc50fcb325f3508e1f9acf6")]
 [assembly: System.Reflection.AssemblyProductAttribute("HubNewsCollection")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HubNewsCollection")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

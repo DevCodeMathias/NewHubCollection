@@ -21,10 +21,18 @@ namespace HubNewsCollection.Service
             _db = db;
         }
 
+        public Task<List<Articles>> GetFeed()
+        {
+            var articles = _db.Articles
+                .OrderByDescending(a => a.published_at)
+                .ToListAsync();
+
+            return articles;
+        }
+
         public async Task SyncNews()
         {
-            try
-            {
+           
                 var json = await _fetchApiNews.FetchNews();
 
                 if (string.IsNullOrWhiteSpace(json))
@@ -47,30 +55,31 @@ namespace HubNewsCollection.Service
                 var fetched = payload.data.Count;
 
                 var existingUrls = await _db.Articles
-                    .Select(a => a.Url)
+                    .Select(a => a.url)
                     .ToListAsync();
 
                 var existing = new HashSet<string>(existingUrls, StringComparer.OrdinalIgnoreCase);
 
                 var toInsert = payload.data
-                    .Where(a => !string.IsNullOrWhiteSpace(a.Url))
-                    .Where(a => !existing.Contains(a.Url!))
+                    .Where(a => !string.IsNullOrWhiteSpace(a.url))
+                    .Where(a => !existing.Contains(a.url!))
                     .Select(a => new Articles
                     {
-                        Title = a.Title,
-                        Author = a.Author,
-                        Source = a.Source,
-                        Category = a.Category ?? "business",
-                        Image = a.Image,
-                        Description = a.Description,
-                        Published_at = a.Published_at switch
+                        id = Guid.NewGuid(),
+                        title = a.title,
+                        author = a.author,
+                        source = a.source,
+                        category = a.category ?? "business",
+                        image = a.image,
+                        description = a.description,
+                        published_at = a.published_at switch
                         {
                             null => (DateTime?)null,
                             DateTime dt when dt.Kind == DateTimeKind.Utc => dt,
                             DateTime dt when dt.Kind == DateTimeKind.Local => dt.ToUniversalTime(),
-                            DateTime dt => DateTime.SpecifyKind(dt, DateTimeKind.Utc) // Unspecified -> Utc
+                            DateTime dt => DateTime.SpecifyKind(dt, DateTimeKind.Utc) 
                         },
-                        Url = a.Url!
+                        url = a.url!
                     })
                     .ToList();
 
@@ -84,23 +93,9 @@ namespace HubNewsCollection.Service
                 {
                     Console.WriteLine("ℹ️ Nenhuma notícia nova para salvar (todas já existem no banco).");
                 }
-            }
-            catch (JsonException ex)
-            {
-                Console.WriteLine($"❌ Erro ao desserializar o JSON da API: {ex.Message}");
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine($"❌ Erro ao salvar no banco de dados: {ex.InnerException?.Message ?? ex.Message}");
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"❌ Erro de conexão com a API externa: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Erro inesperado: {ex.Message}");
-            }
+
         }
+
+
     }
 }

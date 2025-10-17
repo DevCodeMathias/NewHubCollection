@@ -12,18 +12,24 @@ namespace HubNewsCollection.Database
         protected override void OnModelCreating(ModelBuilder mb)
         {
             base.OnModelCreating(mb);
-           // mb.Entity<Articles>().ToTable("articles");
+
             mb.Entity<Articles>(e =>
             {
-                e.Property(x => x.Id)
+                e.ToTable("articles");                 
+                e.HasKey(x => x.id);
+
+                e.Property(x => x.id)
+                    .HasColumnType("uuid")
+                    .HasDefaultValueSql("uuid_generate_v4()") 
                     .ValueGeneratedOnAdd();
-                e.Property(x => x.Title).HasMaxLength(300).IsRequired();
-                e.Property(x => x.Url).HasMaxLength(800).IsRequired();
-                e.HasIndex(x => x.Url).IsUnique();  // evita duplicatas ao sync
-                e.Property(x => x.Category).HasMaxLength(50);
+
+                e.Property(x => x.title).IsRequired();
+                e.Property(x => x.description).HasColumnType("text");
+                e.Property(x => x.url).HasColumnType("text").IsRequired();
+                e.HasIndex(x => x.url).IsUnique();
+                e.Property(x => x.category).HasMaxLength(50);
             });
-
-
         }
+
     }
 }

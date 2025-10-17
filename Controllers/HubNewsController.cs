@@ -13,19 +13,18 @@ namespace HubNewsCollection.Controllers
             _service = service;
         }
 
-        [HttpGet("notices")]
-        public async Task<IActionResult> GetNotices()
+        [HttpPost("notices")]
+        public async Task<IActionResult> PostNotices()
         {
-            try
-            {
-                await _service.SyncNews();
+            await _service.SyncNews();
+            return Created();
+        }
 
-                return Created();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro ao buscar notícias: {ex.Message}");
-            }
+        [HttpGet("Feed")]
+        public async Task<IActionResult> GetFeedNotices()
+        {
+           var list = await _service.GetFeed();
+            return Ok(list);
         }
 
     }
