@@ -1,9 +1,46 @@
 [
   {
     "ContainingType": "HubNewsCollection.Controllers.HubNewsController",
-    "Method": "GetFeedNotices",
-    "RelativePath": "api/HubNews/Feed",
-    "HttpMethod": "GET",
+    "Method": "DeleteArticle",
+    "RelativePath": "api/HubNews/admin/articles/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HubNewsCollection.Controllers.HubNewsController",
+    "Method": "UpdateArticle",
+    "RelativePath": "api/HubNews/admin/articles/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "HubNewsCollection.Domain.DTO.Request.UpdateArticleRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HubNewsCollection.Controllers.HubNewsController",
+    "Method": "PostNotices",
+    "RelativePath": "api/HubNews/admin/notices",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
@@ -11,9 +48,9 @@
   },
   {
     "ContainingType": "HubNewsCollection.Controllers.HubNewsController",
-    "Method": "PostNotices",
-    "RelativePath": "api/HubNews/notices",
-    "HttpMethod": "POST",
+    "Method": "GetFeedNotices",
+    "RelativePath": "api/HubNews/Feed",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],

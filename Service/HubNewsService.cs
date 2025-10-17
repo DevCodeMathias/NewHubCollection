@@ -1,4 +1,5 @@
 ﻿using HubNewsCollection.Database;
+using HubNewsCollection.Domain.DTO.Request;
 using HubNewsCollection.Domain.Interfaces;
 using HubNewsCollection.Domain.Response;
 using Microsoft.EntityFrameworkCore;
@@ -94,6 +95,48 @@ namespace HubNewsCollection.Service
                     Console.WriteLine("ℹ️ Nenhuma notícia nova para salvar (todas já existem no banco).");
                 }
 
+        }
+
+
+        public async Task<bool> DeleteArticleAsync(Guid id)
+        {
+            var article = await _db.Articles.FirstOrDefaultAsync(a => a.id == id);
+
+            if (article is null)
+            {
+                return false;
+            }
+
+            _db.Articles.Remove(article);
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
+
+
+
+        public async Task<Articles?> UpdateArticleAsync(Guid id, UpdateArticleRequest request)
+        {
+            var article = await _db.Articles.FirstOrDefaultAsync(a => a.id == id);
+
+            if (article is null)
+            {
+                return null;
+            }
+
+            if (request.Title is not null)
+            {
+                article.title = request.Title;
+            }
+
+            if (request.Url is not null)
+            {
+                article.url = request.Url;
+            }
+
+            await _db.SaveChangesAsync();
+
+            return article;
         }
 
 
