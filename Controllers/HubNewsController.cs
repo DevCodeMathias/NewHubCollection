@@ -18,7 +18,7 @@ namespace HubNewsCollection.Controllers
         public async Task<IActionResult> PostNotices()
         {
             await _service.SyncNews();
-            return Created();
+            return Created("", new { message = "Dados sincronizados com sucesso." });
         }
 
         [HttpGet("Feed")]
