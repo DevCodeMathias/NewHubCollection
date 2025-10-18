@@ -1,4 +1,3 @@
-using HubNewsCollection.Database;
 using HubNewsCollection.Domain.Interfaces;
 using HubNewsCollection.Service;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +5,7 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 
 builder.Services.AddControllers();
