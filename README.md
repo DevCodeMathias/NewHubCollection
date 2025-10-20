@@ -23,7 +23,7 @@ https://hubnewsapi-grfgdpgrbtd4g3cj.brazilsouth-01.azurewebsites.net/swagger/ind
 
 ## Serviços principais
 - `FetchApiNewsService`: realiza a chamada HTTP ao MediaStack.
-- `HubNewsService`: armazena os artigos em memória e controla as operações de sincronização, atualização e exclusão.
+- `HubNewsService`: armazena os artigos em um banco de dados e controla as operações de sincronização, atualização e exclusão.
 
 ## Endpoints
 A rota base do controlador é `api/HubNews`.
