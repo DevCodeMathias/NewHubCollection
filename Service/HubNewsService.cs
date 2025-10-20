@@ -1,7 +1,8 @@
 ﻿using HubNewsCollection.Domain.DTO.Request;
 using HubNewsCollection.Domain.Interfaces;
 using HubNewsCollection.Domain.Response;
-using System.Collections.Concurrent;
+using HubNewsCollection.Database;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace HubNewsCollection.Service
@@ -9,33 +10,28 @@ namespace HubNewsCollection.Service
     public class HubNewsService : IHubNewsService
     {
         private readonly IFetchApiNews _fetchApiNews;
+        private readonly AppDbContext _db;
 
-        private static readonly ConcurrentDictionary<Guid, Articles> _store = new();
-
-        private static readonly ConcurrentDictionary<string, Guid> _urlIndex =
-            new(StringComparer.OrdinalIgnoreCase);
-
-        private static readonly object _batchLock = new();
-
-        public HubNewsService(IFetchApiNews fetchApiNews)
+        public HubNewsService(IFetchApiNews fetchApiNews, AppDbContext db)
         {
             _fetchApiNews = fetchApiNews;
+            _db = db;
         }
 
-        public Task<List<Articles>> GetFeed()
+        public async Task<List<Articles>> GetFeed()
         {
             try
             {
-                var list = _store.Values
+                var list = await _db.Articles
                     .OrderByDescending(a => a.published_at)
-                    .ToList();
+                    .ToListAsync();
 
-                return Task.FromResult(list);
+                return list;
             }
             catch
             {
                 Console.WriteLine("❌ Ocorreu um erro durante a operação.");
-                return Task.FromResult(new List<Articles>());
+                return new List<Articles>();
             }
         }
 
@@ -62,10 +58,25 @@ namespace HubNewsCollection.Service
                     return;
                 }
 
-                var toInsert = new List<Articles>();
+                var urlsApi = payload.data
+                    .Where(x => !string.IsNullOrWhiteSpace(x.url))
+                    .Select(x => x.url!.Trim())
+                    .ToList();
+
+                var urlsExistentes = await _db.Articles
+                    .Where(a => urlsApi.Contains(a.url!))
+                    .Select(a => a.url!)
+                    .ToListAsync();
+
+                var novas = new List<Articles>();
 
                 foreach (var a in payload.data.Where(x => !string.IsNullOrWhiteSpace(x.url)))
                 {
+                    var url = a.url!.Trim();
+
+                    if (urlsExistentes.Contains(url, StringComparer.OrdinalIgnoreCase))
+                        continue;
+
                     DateTime? published = a.published_at switch
                     {
                         null => null,
@@ -73,8 +84,6 @@ namespace HubNewsCollection.Service
                         DateTime dt when dt.Kind == DateTimeKind.Local => dt.ToUniversalTime(),
                         DateTime dt => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
                     };
-
-                    if (_urlIndex.ContainsKey(a.url!)) continue;
 
                     var article = new Articles
                     {
@@ -86,24 +95,22 @@ namespace HubNewsCollection.Service
                         image = a.image,
                         description = a.description,
                         published_at = published,
-                        url = a.url!
+                        url = url
                     };
 
-                    toInsert.Add(article);
+                    novas.Add(article);
                 }
 
-                lock (_batchLock)
+                if (novas.Count == 0)
                 {
-                    foreach (var art in toInsert)
-                    {
-                        if (_urlIndex.TryAdd(art.url!, art.id))
-                        {
-                            _store.TryAdd(art.id, art);
-                        }
-                    }
+                    Console.WriteLine("ℹ️ Nenhuma notícia nova para salvar (todas já existem).");
+                    return;
                 }
 
-                Console.WriteLine($"✅ {toInsert.Count} novas notícias salvas em memória.");
+                await _db.Articles.AddRangeAsync(novas);
+                await _db.SaveChangesAsync();
+
+                Console.WriteLine($"✅ {novas.Count} novas notícias salvas no SQL Server.");
             }
             catch
             {
@@ -111,67 +118,58 @@ namespace HubNewsCollection.Service
             }
         }
 
-        public Task<bool> DeleteArticleAsync(Guid id)
+        public async Task<bool> DeleteArticleAsync(Guid id)
         {
             try
             {
-                if (_store.TryRemove(id, out var removed))
-                {
-                    if (!string.IsNullOrWhiteSpace(removed.url))
-                    {
-                        _urlIndex.TryRemove(removed.url!, out _);
-                    }
-                    return Task.FromResult(true);
-                }
+                var entity = await _db.Articles.FindAsync(id);
+                if (entity == null) return false;
 
-                return Task.FromResult(false);
+                _db.Articles.Remove(entity);
+                await _db.SaveChangesAsync();
+                return true;
             }
             catch
             {
                 Console.WriteLine("❌ Ocorreu um erro durante a operação.");
-                return Task.FromResult(false);
+                return false;
             }
         }
 
-        public Task<Articles?> UpdateArticleAsync(Guid id, UpdateArticleRequest request)
+        public async Task<Articles?> UpdateArticleAsync(Guid id, UpdateArticleRequest request)
         {
             try
             {
-                if (!_store.TryGetValue(id, out var article))
-                    return Task.FromResult<Articles?>(null);
+                var article = await _db.Articles.FirstOrDefaultAsync(a => a.id == id);
+                if (article == null) return null;
 
                 if (request.Title is not null)
-                {
                     article.title = request.Title;
-                }
 
                 if (!string.IsNullOrWhiteSpace(request.Url) &&
                     !string.Equals(request.Url, article.url, StringComparison.OrdinalIgnoreCase))
                 {
-                    var newUrl = request.Url!;
+                    var newUrl = request.Url!.Trim();
 
-                    if (_urlIndex.ContainsKey(newUrl))
-                    {
-                        return Task.FromResult<Articles?>(null);
-                    }
+    
+                    var urlEmUso = await _db.Articles
+                        .AnyAsync(a => a.id != id && a.url == newUrl);
 
-                    lock (_batchLock)
-                    {
-                        if (!string.IsNullOrWhiteSpace(article.url))
-                            _urlIndex.TryRemove(article.url!, out _);
+                    if (urlEmUso)
+                        return null;
 
-                        article.url = newUrl;
-                        _urlIndex[newUrl] = article.id;
-                    }
+                    article.url = newUrl;
                 }
 
-                _store[id] = article;
-                return Task.FromResult<Articles?>(article);
+                _db.Articles.Update(article);
+                await _db.SaveChangesAsync();
+
+                return article;
             }
             catch
             {
                 Console.WriteLine("❌ Ocorreu um erro durante a operação.");
-                return Task.FromResult<Articles?>(null);
+                return null;
             }
         }
     }
