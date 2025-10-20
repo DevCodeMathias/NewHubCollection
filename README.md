@@ -3,7 +3,7 @@
 ## Visão geral
 A HubNewsCollection é uma API REST construída com ASP.NET Core 8.0 que agrega notícias de negócios obtidas via [MediaStack](https://mediastack.com/). O serviço mantém um cache em memória das matérias retornadas pela API externa e permite sincronizar, listar, atualizar e excluir artigos.
 https://hubnewsapi-grfgdpgrbtd4g3cj.brazilsouth-01.azurewebsites.net/swagger/index.html
-> **Importante:** o armazenamento é apenas em memória. Sempre que a aplicação reinicia, os dados sincronizados são perdidos.
+
 
 ## Requisitos
 - .NET SDK 8.0 ou superior
