@@ -47,8 +47,7 @@ namespace HubNewsCollection.Database
                     .HasColumnType("nvarchar(max)");
 
                 e.Property(x => x.url)
-                    .HasColumnName("url")
-                    .HasMaxLength(800)
+                    .HasMaxLength(2048)
                     .IsRequired();
 
                 e.Property(x => x.image)
@@ -59,11 +58,6 @@ namespace HubNewsCollection.Database
                     .HasColumnName("published_at")
                     .HasColumnType("datetime2");
 
-                // Coluna opcional para auditoria (não precisa existir no seu model)
-                // e.Property<DateTime>("created_at")
-                //   .HasColumnName("created_at")
-                //   .HasColumnType("datetime2")
-                //   .HasDefaultValueSql("SYSUTCDATETIME()");
 
                 e.HasIndex(x => x.url)
                     .IsUnique()
